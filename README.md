@@ -1,4 +1,1 @@
-# quarilaterals
-# quadrilaterals
-# quadrilaterals
 # quadrilaterals
