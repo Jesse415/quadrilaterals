@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstring>
-
+#include <vector>
 using namespace std;
 int errorCheck();
 
@@ -23,7 +23,7 @@ public:
   double getY(){
     return y;
   }
-  void setPoint(int x, int y){
+  void setPoint(double x, double y){
     x=x;
     y=y;
   }
@@ -36,9 +36,9 @@ public:
 class Quadrilateral {
 protected:
   Points point1, point2, point3, point4;
-  double sideA, sideB, sideC, sideD, area;
+  double sideA, sideB, sideC, sideD, area, angle;
 public:
-  Quadrilateral (double x, double y): point1(Points(0,0)){}
+  Quadrilateral (double x, double y, double angle): point1(Points(0,0)){}
   /*getters for points*/
   Points getPoint1(){
     return point1;
@@ -65,6 +65,7 @@ public:
     return sideD;
   }
   virtual void setArea()=0;
+  virtual double setValues()=0;
   virtual double getArea() = 0;
 };
 
@@ -73,8 +74,8 @@ class Parallelogram: public Quadrilateral {
 protected:
   int angle;
 public:
-  Parallelogram (int x, int y): Quadrilateral(x, y){}
-  void setValues(int a, int b, int inAngle){
+  Parallelogram (double x, double y, double a): Quadrilateral(x, y, a){}
+  void setValues(double a, double b, double inAngle){
     sideA = a;
     sideB = b;
     angle = inAngle;
@@ -98,8 +99,8 @@ class Rhombus: public Parallelogram {
 protected:
   int angle;
 public:
-  Rhombus (int x, int y): Parallelogram (x, y){}
-  void setValues(int a, int inAngle){
+  Rhombus (double x, double y, double a): Parallelogram (x, y, a){}
+  void setValues(double a, double inAngle){
     sideA = a;
     angle = inAngle;
   }
@@ -118,8 +119,8 @@ public:
 
 class Rectangle: public Quadrilateral {
 public:
-  Rectangle (int x, int y): Quadrilateral(x, y){}
-  void setValues(int a, int b){
+  Rectangle (double x, double y, double a): Quadrilateral(x, y, a){}
+  void setValues(double a, double b){
     sideA = a;
     sideB = b;
   }
@@ -140,8 +141,8 @@ public:
   the angles between adjacent are all 90 deg.*/
 class Square: public Rectangle {
 public:
-  Square(int x): Rectangle(x, y){}
-  void setValues(int a){
+  Square(double x, double y, double a): Rectangle(x, y, a){}
+  void setValues(double a){
     sideA = a;
   }
   void setPoints(){
@@ -174,8 +175,8 @@ public:
 
 //main function menu
 int main(){
-  Quadrilateral *quads[1000000];
-  int a, b, angle1, dIndex;
+  double a, b, angle1, dIndex=0, index;
+  vector<Quadrilateral*> quads;
   char selection[10];
   bool menu = true;
 
@@ -191,29 +192,35 @@ int main(){
       a = errorCheck();
       cout << "Now side (B): " << endl;
       b = errorCheck();
-      quads.setValues(a, b);
+      quads[dIndex]->setValues(a, b);
     } else if(strcmp(selection, "p")==0){
       cout << "Enter two side of the parallelogram, first side (A): " << endl;
       a = errorCheck();
       cout << "Now side (B): " << endl;
       b = errorCheck();
       cout << "Now the angle: " << endl;
-      quads = setValues(a, b, angle1);
-      quads = getArea();
+      angle1 = errorCheck();
+      quads[dIndex]->setValues(a, b, angle1);
+      quads[dIndex]->getArea();
     } else if(strcmp(selection, "s")==0){
       cout << "Enter one side of the square (A): " << endl;
       a = errorCheck();
-      Square(a);
+      quads[dIndex]->setValues(a);
+      quads[dIndex]->getArea();
     } else if(strcmp(selection, "R")==0){
       cout << "Enter side (A) of the rhombus: " << endl;
       a = errorCheck();
       cout << "Now enter the angle between the two adjacent sides: " << endl;
       angle1 = errorCheck();
-      Rhombus rhom (a, angle1);
+      quads[dIndex]->setValues(a, angle1);
     } else if(strcmp(selection, "d")==0){
         cout << "Enter the index to display: " << endl;
-        dIndex = errorCheck();
-        display(dIndex);
+        index = errorCheck();
+        for (int i=0; i<= index; i++){
+          if (i=index){
+            cout << quads[i] << endl;
+          }
+        }
     }
     return 0;
   }
@@ -232,7 +239,7 @@ int main(){
 
 /*Submission will include (the UML diagrams and codes) by 13/09*/
 int errorCheck() {
-  int Check;
+  double Check;
   while (!(cin >> Check)) {
     cin.clear();
     cin.ignore(100, '\n');
