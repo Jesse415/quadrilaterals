@@ -1,97 +1,161 @@
 //This is the start to the quadrilaterals C++ file
 #include <iostream>
 #include <cmath>
+#include <cstring>
+
 using namespace std;
+int errorCheck();
+
 
 /*write a point class represented by two values x and y.*/
-class Point{
+class Points {
+protected:
+  double x, y;
 public:
-  int x1, y1, x2, y2, x3, y3, x4, y4;
-  Point()
-  Point(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4):
-
-  display(){
-    return string("The area is: ", getArea());
+  Points(double x, double y){
+    x=x;
+    y=y;
+  }
+  Points(): Points(0, 0) {}
+  double getX(){
+    return x;
+  }
+  double getY(){
+    return y;
+  }
+  void setPoint(int x, int y){
+    x=x;
+    y=y;
   }
 };
 
-/*abstract quadrilateral class*/
-/*quadrilateral has four points and for sides where sum of any three sides is larger than
-  the fourth side. sum of the angles between adjacent sides are 360.*/
-class Quadrilateral: public Point{
-  int cd1, cd2, cd3, cd4;
+/*abstract quadrilateral class
+  quadrilateral has four points and for sides where sum of any three sides
+  is larger than the fourth side. sum of the angles between adjacent sides are 360.
+  The is the main base class.*/
+class Quadrilateral {
+protected:
+  Points point1, point2, point3, point4;
+  double sideA, sideB, sideC, sideD, area;
 public:
-  Quadrilateral(): Point(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
-    cd1 = new Coordinate(x1, y1);
-    cd2 = new Coordinate(x2, y2);
-    cd3 = new Coordinate(x3, y3);
-    cd4 = new Coordinate(x4, y4);
+  Quadrilateral (double x, double y): point1(Points(0,0)){}
+  /*getters for points*/
+  Points getPoint1(){
+    return point1;
   }
-  lengthA(){
-    return math.abs(cd2.x - cd1.x);
+  Points getPoint2(){
+    return point2;
   }
-  lengthB(){
-    return math.abs(cd4.x - cd3.x);
+  Points getPoint3(){
+    return point3;
   }
-  lengthC(){
-    return math.abs(cd3.y - cd1.y);
-   }
-  lengthD(){
-    return math.abs(cd4.y - cd2.y);
-   }
-  height(){
-    return math.abs(cd3.y-cd1.y)
+  Points getPoint4(){
+    return point4;
   }
-  double getArea();
+  double getSideA (){
+    return sideA;
+  }
+  double getSideB (){
+    return sideB;
+  }
+  double getSideC (){
+    return sideC;
+  }
+  double getSideD (){
+    return sideD;
+  }
+  virtual void setArea()=0;
+  virtual double getArea() = 0;
 };
-/*Parallelogram is a quadrilateral where its opposite sides are parallel and equal and
-  the angles between adjacent sides are all 90 deg.*/
-class Parallelogram: public Quadrilateral{
-  int side, pHeight;
+
+/*Parallelogram is a quadrilateral where its opposite sides are parallel and equal*/
+class Parallelogram: public Quadrilateral {
+protected:
+  int angle;
 public:
-  Parallelogram(int x1, int y1, int x2, int y2, int x3, int y3):
-    quadrilateral(x1, y1, x2, y2, x3, y3, 0, 0){
-    side = lengthA();
-    pHeight = height();
+  Parallelogram (int x, int y): Quadrilateral(x, y){}
+  void setValues(int a, int b, int inAngle){
+    sideA = a;
+    sideB = b;
+    angle = inAngle;
+  }
+  void setPoints(){
+    point2.setPoint(sideA, 0);
+    point3.setPoint(sideB * cos(angle), sideB * sin(angle));
+    point4.setPoint(sideA + sideB * cos(angle), sideB * sin(angle));
+  }
+  void setArea(){
+    area = ((sideB*sideA)*(sin(angle)));
+  }
+  double getArea() {
+    return area;
+  }
+};
+
+
+/*rhombus is a quadrilateral where its all sides are equal, opposite sides are parallel*/
+class Rhombus: public Parallelogram {
+protected:
+  int angle;
+public:
+  Rhombus (int x, int y): Parallelogram (x, y){}
+  void setValues(int a, int inAngle){
+    sideA = a;
+    angle = inAngle;
+  }
+  void setPoints(){
+   point2.setPoint(0, (360-(angle*2))/2);
+   point3.setPoint((360-(angle*2))/2, 0);
+   point4.setPoint((360-(angle*2))/2, (360-(angle*2))/2);
+  }
+  void setArea(){
+    area = sqrt(sideA)*sin(angle);
   }
   double getArea(){
-    return side*pHeight;
+    return area;
   }
 };
 
-class Rectangle: public Parallelogram{
-  int sideA, sideC;
+class Rectangle: public Quadrilateral {
 public:
-  Rectangle(): Parallelogram(int x1, int y1, int x2, int y2, int x3, int y3):
-               parallelogram(x1, y1, x2, y2, x3, y3){
-    sideA = lengthA();
-    sideC = lengthC();
+  Rectangle (int x, int y): Quadrilateral(x, y){}
+  void setValues(int a, int b){
+    sideA = a;
+    sideB = b;
+  }
+  void setPoints(){
+    point2.setPoint(sideA, 0);
+    point3.setPoint(0, sideB);
+    point4.setPoint(sideB, sideA);
+  }
+  void setArea(){
+    area = sideA*sideB;
   }
   double getArea(){
-    return sideA*sideC;
+    return area;
   }
 };
-
 
 /*square is a quadrilateral where its all sides are equal, opposite sides are parallel, and
   the angles between adjacent are all 90 deg.*/
-class Square: public Rectangle{
+class Square: public Rectangle {
 public:
-  int side;
-  Square(): Rectangle(int x1, int y1, int x2, int y2):
-    quadrilateral(x1, y1, x2, y2, 0, 0, 0, 0){
-    side = lengthA();
+  Square(int x): Rectangle(x, y){}
+  void setValues(int a){
+    sideA = a;
   }
-  double getArea(){
-    return math.pow(side, 2);
+  void setPoints(){
+    point2.setPoint(sideA, 0);
+    point3.setPoint(0, sideA);
+    point4.setPoint(sideA, sideA);
+  }
+  void setArea(){
+    area = sqrt(sideA);
+  }
+  double getArea() {
+    return area;
   }
 };
-/*rhombus is a quadrilateral where its all sides are equal, opposite sides are parallel*/
-class Rhombus: public Square{
-  Rhombus(): Square(int x1, int y1, int x2, int y2)
-
-};
-
 
 /*if you declare the destruct-or of a class to be virtual and with = 0 then the class will be abstract. The quadrilateral will have an abstract method to calculate its area.*/
 
@@ -110,13 +174,13 @@ class Rhombus: public Square{
 
 //main function menu
 int main(){
-  myQuadrilaterals quad1;
-  int a, b, angle1, angle2, display;
+  Quadrilateral *quads[1000000];
+  int a, b, angle1, dIndex;
   char selection[10];
   bool menu = true;
 
   while(menu){
-    cout << "Enter your choice, [r]ectangle, [p]arallelogram, [s]quare, [R]hombus, [d]isplay, or [q]uit." endl;
+    cout << "Enter your choice, [r]ectangle, [p]arallelogram, [s]quare, [R]hombus, [d]isplay, or [q]uit." << endl;
     cin >> selection;
 
     if(strcmp(selection, "q")==0){
@@ -127,32 +191,33 @@ int main(){
       a = errorCheck();
       cout << "Now side (B): " << endl;
       b = errorCheck();
-      quad1.rectangle(a, b);
+      quads.setValues(a, b);
     } else if(strcmp(selection, "p")==0){
       cout << "Enter two side of the parallelogram, first side (A): " << endl;
       a = errorCheck();
       cout << "Now side (B): " << endl;
       b = errorCheck();
       cout << "Now the angle: " << endl;
-      quad1.parallelogram(a, b, angle);
+      quads = setValues(a, b, angle1);
+      quads = getArea();
     } else if(strcmp(selection, "s")==0){
       cout << "Enter one side of the square (A): " << endl;
       a = errorCheck();
-      quad1.square(a);
+      Square(a);
     } else if(strcmp(selection, "R")==0){
       cout << "Enter side (A) of the rhombus: " << endl;
       a = errorCheck();
-      cout << "Now enter the angle between the two adjacent sides: "
-      angle = errorCheck();
-      quad1.rhombus(a, angle1, angle2);
+      cout << "Now enter the angle between the two adjacent sides: " << endl;
+      angle1 = errorCheck();
+      Rhombus rhom (a, angle1);
     } else if(strcmp(selection, "d")==0){
         cout << "Enter the index to display: " << endl;
         dIndex = errorCheck();
-        quad1.display(dIndex);
+        display(dIndex);
     }
     return 0;
   }
-}
+};
 
 /*1. Rectangle user will need to input two sides, A & B.
   2. Parallelogram, user input two sides, A & B and the angle 0 between the two sides.
@@ -175,3 +240,4 @@ int errorCheck() {
   }
   return Check;
 }
+
